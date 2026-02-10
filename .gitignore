@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+dist/
+
+# Env & Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
