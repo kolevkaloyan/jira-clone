@@ -3,14 +3,13 @@ import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 
 dotenv.config();
-
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "5432"),
-  username: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "password",
-  database: process.env.DB_NAME || "jira-clone",
+  host: requireEnv("DB_HOST"),
+  port: parseInt(requireEnv("DB_PORT")),
+  username: requireEnv("DB_USER"),
+  password: requireEnv("DB_PASSWORD"),
+  database: requireEnv("DB_NAME"),
   synchronize: true, // Always false in production; use migrations instead!
   logging: true,
   entities: [__dirname + "/entities/*.ts"],
