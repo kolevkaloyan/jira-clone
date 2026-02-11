@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { requireEnv } from "./requireEnv";
 
 const ACCESS_TOKEN_SECRET = requireEnv("JWT_SECRET");
 const REFRESH_TOKEN_SECRET = requireEnv("REFRESH_TOKEN_SECRET");
