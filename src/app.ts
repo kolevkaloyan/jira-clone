@@ -2,6 +2,7 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rootRouter from "./routes/index";
+import { globalErrorHandler } from "./middleware/error.middleware";
 
 const app: Application = express();
 
@@ -23,5 +24,10 @@ app.use("/api/v1", rootRouter);
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({ status: "UP", timestamp: new Date().toISOString() });
 });
+
+/*
+Custom error handling
+*/
+app.use(globalErrorHandler);
 
 export default app;

@@ -1,27 +1,20 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import { SignupSchema, LoginSchema } from "../dtos/auth.dto";
+import { catchAsync } from "../utils/catchAsync";
 
 const authService = new AuthService();
 
-export const signup = async (req: Request, res: Response) => {
-  try {
-    const validatedData = SignupSchema.parse(req.body);
-    const tokens = await authService.signup(validatedData);
+export const signup = catchAsync(async (req: Request, res: Response) => {
+  const validatedData = SignupSchema.parse(req.body);
+  const tokens = await authService.signup(validatedData);
 
-    res.status(201).json(tokens);
-  } catch (error: any) {
-    res.status(400).json({ error: error.message || "Validation failed!" });
-  }
-};
+  res.status(201).json(tokens);
+});
 
-export const login = async (req: Request, res: Response) => {
-  try {
-    const validatedData = LoginSchema.parse(req.body);
-    const tokens = await authService.login(validatedData);
+export const login = catchAsync(async (req: Request, res: Response) => {
+  const validatedData = LoginSchema.parse(req.body);
+  const tokens = await authService.login(validatedData);
 
-    res.json(tokens);
-  } catch (error: any) {
-    res.status(400).json({ error: error.message || "Invalid credentials!" });
-  }
-};
+  res.json(tokens);
+});

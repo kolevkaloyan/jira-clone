@@ -13,7 +13,7 @@ export class AuthService {
     const existingUser = await this.userRepository.findOne({
       where: { email }
     });
-    //TODO: Implement a GlobalExceptionFilter class later
+
     if (existingUser) throw new Error("User already exists");
 
     const hashedPassword = await bcrypt.hash(password, 12);
