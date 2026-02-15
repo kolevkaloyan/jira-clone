@@ -16,7 +16,6 @@ export const protect = catchAsync(
     }
 
     const decoded = verifyAccessToken(token);
-    console.log(decoded, "decoded");
     req.user = { id: decoded.userId };
 
     next();

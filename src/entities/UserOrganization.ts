@@ -8,6 +8,12 @@ export enum OrganizationRole {
   MEMBER = "member"
 }
 
+export enum EnrollmentStatus {
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  REJECTED = "rejected"
+}
+
 @Entity("user_organizations")
 export class UserOrganization {
   @PrimaryGeneratedColumn("uuid")
@@ -19,6 +25,13 @@ export class UserOrganization {
     default: OrganizationRole.MEMBER
   })
   role!: OrganizationRole;
+
+  @Column({
+    type: "enum",
+    enum: EnrollmentStatus,
+    default: EnrollmentStatus.PENDING
+  })
+  status!: EnrollmentStatus;
 
   @ManyToOne(() => User, (user) => user.memberships)
   user!: User;
