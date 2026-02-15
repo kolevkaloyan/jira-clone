@@ -39,6 +39,12 @@ export class AuthService {
 
     if (!user) throw new Error("Invalid credentials!");
 
+    const isPasswordMatching = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatching) {
+      throw new Error("Invalid credentials!");
+    }
+
     return generateTokens(user.id);
   }
 }
