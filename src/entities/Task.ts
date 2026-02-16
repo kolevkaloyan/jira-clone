@@ -45,7 +45,7 @@ export class Task {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @ManyToOne(() => Project, (project) => project.tasks)
+  @ManyToOne(() => Project, (project) => project.tasks, { onDelete: "CASCADE" })
   project!: Project;
 
   @ManyToOne(() => User, { nullable: true })

@@ -1,4 +1,10 @@
-import { Column, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn
+} from "typeorm";
 import { Entity } from "typeorm/decorator/entity/Entity";
 import { User } from "./User";
 import { UserOrganization } from "./UserOrganization";
@@ -20,4 +26,7 @@ export class Organization {
 
   @ManyToMany(() => User)
   employees!: User[];
+
+  @CreateDateColumn()
+  createdAt!: Date;
 }

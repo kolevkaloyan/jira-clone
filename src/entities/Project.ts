@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -16,9 +17,21 @@ export class Project {
   @Column()
   name!: string;
 
+  @Column({ length: 12 })
+  key!: string;
+
+  @Column({ nullable: true })
+  description!: string;
+
   @ManyToOne(() => Organization, (organization) => organization.projects)
   organization!: Organization;
 
   @OneToMany(() => Task, (task) => task.project)
   tasks!: Task[];
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @CreateDateColumn()
+  updatedAt!: Date;
 }
