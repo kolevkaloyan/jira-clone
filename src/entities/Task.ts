@@ -7,7 +7,8 @@ import {
   ManyToOne,
   OneToMany,
   ManyToMany,
-  JoinTable
+  JoinTable,
+  Index
 } from "typeorm";
 import { Project } from "./Project";
 import { User } from "./User";
@@ -27,6 +28,13 @@ export class Task {
   id!: string;
 
   @Column()
+  taskNumber!: number;
+
+  @Column()
+  @Index()
+  key!: string;
+
+  @Column()
   title!: string;
 
   @Column({ type: "text", nullable: true })
@@ -38,6 +46,10 @@ export class Task {
     default: TaskStatus.TODO
   })
   status!: TaskStatus;
+
+  // can be used for drag and drop
+  @Column({ type: "float", default: 0 })
+  order!: number;
 
   @CreateDateColumn()
   createdAt!: Date;

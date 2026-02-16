@@ -29,6 +29,9 @@ export class Project {
   @OneToMany(() => Task, (task) => task.project)
   tasks!: Task[];
 
+  @Column({ default: 0 })
+  lastTaskNumber!: number;
+
   @CreateDateColumn()
   createdAt!: Date;
 

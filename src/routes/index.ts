@@ -10,8 +10,6 @@ rootRouter.use("/auth", authRoutes);
 
 rootRouter.use("/user", userRoutes);
 
-rootRouter.use("/organizations", orgRoutes);
-
-rootRouter.use("/:orgId/projects", projectRoutes);
+rootRouter.use("/organization", orgRoutes);
 
 export default rootRouter;

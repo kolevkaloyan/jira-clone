@@ -8,6 +8,7 @@ import {
   respondToInvitation
 } from "../controllers/organization.controller";
 import { isOwner } from "../middleware/role.middleware";
+import projectRouter from "./project.routes";
 
 const router = Router();
 
@@ -22,5 +23,7 @@ router.get("/invitations", getMyInvitations);
 router.post("/:orgId/invite", isOwner, inviteUser);
 
 router.patch("/invitations/:membershipId", respondToInvitation);
+
+router.use("/:orgId/project", projectRouter);
 
 export default router;
