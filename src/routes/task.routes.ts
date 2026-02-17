@@ -9,6 +9,7 @@ import {
 import { protect } from "../middleware/auth.middleware";
 import { isMember } from "../middleware/role.middleware";
 import commentRouter from "./comment.routes";
+import tagRouter from "./tag.routes";
 
 const router = Router({ mergeParams: true });
 
@@ -20,5 +21,7 @@ router.route("/").get(getTasks).post(createTask);
 router.route("/:taskId").get(getTask).patch(updateTask).delete(deleteTask);
 
 router.use("/:taskId/comment", commentRouter);
+
+router.use("/:taskId/tag", tagRouter);
 
 export default router;

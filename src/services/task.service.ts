@@ -62,7 +62,7 @@ export class TaskService {
     return await this.taskRepo.find({
       where: { project: { id: projectId }, status },
       order: { order: "ASC", createdAt: "DESC" },
-      loadRelationIds: true
+      relations: ["tags"]
     });
   }
 
