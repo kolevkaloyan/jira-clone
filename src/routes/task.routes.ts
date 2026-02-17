@@ -3,7 +3,8 @@ import {
   createTask,
   getTasks,
   updateTask,
-  deleteTask
+  deleteTask,
+  getTask
 } from "../controllers/task.controller";
 import { protect } from "../middleware/auth.middleware";
 import { isMember } from "../middleware/role.middleware";
@@ -15,6 +16,6 @@ router.use(isMember);
 
 router.route("/").get(getTasks).post(createTask);
 
-router.route("/:taskId").patch(updateTask).delete(deleteTask);
+router.route("/:taskId").get(getTask).patch(updateTask).delete(deleteTask);
 
 export default router;

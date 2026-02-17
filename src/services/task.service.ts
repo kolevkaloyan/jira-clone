@@ -22,7 +22,7 @@ export class TaskService {
 
       const task = manager.create(Task, {
         ...data,
-        project,
+        project: { id: project.id } as any,
         taskNumber: project.lastTaskNumber,
         key: `${project.key}-${project.lastTaskNumber}`,
         assignee: data.assigneeId ? ({ id: data.assigneeId } as any) : null
@@ -30,6 +30,19 @@ export class TaskService {
 
       return await manager.save(task);
     });
+  }
+
+  async getTaskById(projectId: string, taskId: string) {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId, project: { id: projectId } },
+      loadRelationIds: true
+    });
+
+    if (!task) {
+      throw new AppError("Task not found", 404);
+    }
+
+    return task;
   }
 
   async updateTask(projectId: string, taskId: string, data: UpdateTaskDto) {
@@ -49,7 +62,7 @@ export class TaskService {
     return await this.taskRepo.find({
       where: { project: { id: projectId }, status },
       order: { order: "ASC", createdAt: "DESC" },
-      relations: ["assignee"]
+      loadRelationIds: true
     });
   }
 

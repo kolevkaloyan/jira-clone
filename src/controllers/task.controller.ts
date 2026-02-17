@@ -34,6 +34,17 @@ export const getTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const getTask = catchAsync(async (req: Request, res: Response) => {
+  const { projectId, taskId } = TaskParamsSchema.parse(req.params);
+
+  const task = await taskService.getTaskById(projectId, taskId!);
+
+  res.status(200).json({
+    status: "success",
+    data: { task }
+  });
+});
+
 export const updateTask = catchAsync(async (req: Request, res: Response) => {
   const { projectId, taskId } = TaskParamsSchema.parse(req.params);
   const validatedData = UpdateTaskSchema.parse(req.body);
@@ -53,6 +64,6 @@ export const deleteTask = catchAsync(async (req: Request, res: Response) => {
 
   res.status(204).json({
     status: "success",
-    data: null
+    message: "Task deleted"
   });
 });

@@ -22,6 +22,6 @@ router
   .patch(isOwner, updateProject)
   .delete(isOwner, deleteProject);
 
-router.use("/:projectId/tasks", taskRoutes);
+router.use("/:projectId/task", taskRoutes);
 
 export default router;
