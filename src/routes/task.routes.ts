@@ -8,6 +8,7 @@ import {
 } from "../controllers/task.controller";
 import { protect } from "../middleware/auth.middleware";
 import { isMember } from "../middleware/role.middleware";
+import commentRouter from "./comment.routes";
 
 const router = Router({ mergeParams: true });
 
@@ -17,5 +18,7 @@ router.use(isMember);
 router.route("/").get(getTasks).post(createTask);
 
 router.route("/:taskId").get(getTask).patch(updateTask).delete(deleteTask);
+
+router.use("/:taskId/comment", commentRouter);
 
 export default router;

@@ -3,7 +3,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne
+  ManyToOne,
+  UpdateDateColumn
 } from "typeorm";
 import { Task } from "./Task";
 import { User } from "./User";
@@ -19,7 +20,10 @@ export class Comment {
   @CreateDateColumn()
   createdAt!: Date;
 
-  @ManyToOne(() => Task, (task) => task.comments)
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @ManyToOne(() => Task, (task) => task.comments, { onDelete: "CASCADE" })
   task!: Task;
 
   @ManyToOne(() => User)
