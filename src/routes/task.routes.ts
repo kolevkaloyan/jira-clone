@@ -10,10 +10,14 @@ import { protect } from "../middleware/auth.middleware";
 import { isMember } from "../middleware/role.middleware";
 import commentRouter from "./comment.routes";
 import tagRouter from "./tag.routes";
+import { requestContextMiddleware } from "../middleware/requestContext.middleware";
 
 const router = Router({ mergeParams: true });
 
 router.use(protect);
+
+router.use(requestContextMiddleware);
+
 router.use(isMember);
 
 router.route("/").get(getTasks).post(createTask);

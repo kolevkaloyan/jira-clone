@@ -3,30 +3,38 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToOne
+  Index
 } from "typeorm";
-import { User } from "./User";
 
 @Entity("audit_logs")
+@Index(["userId"])
+@Index(["entityName"])
+@Index(["createdAt"])
 export class AuditLog {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column()
-  action!: string; // e.g., "TASK_UPDATED"
+  @Column({ type: "uuid", nullable: true })
+  userId!: string | null;
 
   @Column()
-  entityType!: string; // e.g., "Task"
+  action!: "INSERT" | "UPDATE" | "DELETE";
 
   @Column()
-  entityId!: string;
+  entityName!: string;
+
+  @Column({ type: "uuid", nullable: true })
+  entityId!: string | null;
 
   @Column({ type: "jsonb", nullable: true })
-  payload!: any; // Stores the before/after change
+  before!: Record<string, any> | null;
+
+  @Column({ type: "jsonb", nullable: true })
+  after!: Record<string, any> | null;
+
+  @Column({ type: "jsonb", nullable: true })
+  diff!: Record<string, any> | null;
 
   @CreateDateColumn()
   createdAt!: Date;
-
-  @ManyToOne(() => User)
-  user!: User;
 }

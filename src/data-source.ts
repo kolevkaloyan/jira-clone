@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import dotenv from "dotenv";
 import { requireEnv } from "./utils/requireEnv";
+import { AuditSubscriber } from "./subscribers/AuditSubscriber";
 
 dotenv.config();
 export const AppDataSource = new DataSource({
@@ -15,5 +16,5 @@ export const AppDataSource = new DataSource({
   logging: true,
   entities: [__dirname + "/entities/*.ts"],
   migrations: [__dirname + "/migrations/*.ts"],
-  subscribers: []
+  subscribers: [AuditSubscriber]
 });

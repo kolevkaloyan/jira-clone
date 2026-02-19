@@ -10,10 +10,13 @@ import {
 import { isMember, isOwner } from "../middleware/role.middleware";
 import projectRouter from "./project.routes";
 import { getOrgTags, createTag } from "../controllers/tag.controller";
+import { requestContextMiddleware } from "../middleware/requestContext.middleware";
 
 const router = Router();
 
 router.use(protect);
+
+router.use(requestContextMiddleware);
 
 router.post("/", create);
 
