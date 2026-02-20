@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rootRouter from "./routes/index";
 import { globalErrorHandler } from "./middleware/error.middleware";
+import cookieParser from "cookie-parser";
 
 const app: Application = express();
 
@@ -12,6 +13,7 @@ const app: Application = express();
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 /**
  API Versioning

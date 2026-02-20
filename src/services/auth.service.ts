@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
-import { generateTokens } from "../utils/jwt.util";
+import { generateTokens, storeRefreshToken } from "../utils/jwt.util";
 import { CreateUserDto, LoginDto } from "../dtos/auth.dto";
+import { AppError } from "../utils/AppError";
 
 export class AuthService {
   private userRepository = AppDataSource.getRepository(User);
@@ -14,7 +15,7 @@ export class AuthService {
       where: { email }
     });
 
-    if (existingUser) throw new Error("User already exists");
+    if (existingUser) throw new AppError("User already exists", 409);
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -24,9 +25,13 @@ export class AuthService {
       fullName
     });
 
-    this.userRepository.save(user);
+    await this.userRepository.save(user);
 
-    return generateTokens(user.id);
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    await storeRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken };
   }
 
   async login(data: LoginDto) {
@@ -37,14 +42,18 @@ export class AuthService {
       select: ["id", "password", "email"]
     });
 
-    if (!user) throw new Error("Invalid credentials!");
+    if (!user) throw new AppError("Invalid credentials", 401);
 
     const isPasswordMatching = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatching) {
-      throw new Error("Invalid credentials!");
+      throw new AppError("Invalid credentials", 401);
     }
 
-    return generateTokens(user.id);
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    await storeRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken };
   }
 }
