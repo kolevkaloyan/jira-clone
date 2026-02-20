@@ -1,32 +1,36 @@
 import { Router } from "express";
 import { protect } from "../middleware/auth.middleware";
 import {
+  acceptInvite,
   create,
-  getMyInvitations,
   getOrgs,
-  inviteUser,
-  respondToInvitation
+  inviteUser
 } from "../controllers/organization.controller";
-import { isMember, isOwner } from "../middleware/role.middleware";
+import { isMember, isOwnerOrAdmin } from "../middleware/role.middleware";
 import projectRouter from "./project.routes";
 import { getOrgTags, createTag } from "../controllers/tag.controller";
-import { requestContextMiddleware } from "../middleware/requestContext.middleware";
 
+console.log({
+  protect,
+  create,
+  getOrgs,
+  inviteUser,
+  acceptInvite,
+  isOwnerOrAdmin,
+  isMember,
+  getOrgTags,
+  createTag,
+  projectRouter
+});
 const router = Router();
 
-router.use(protect);
+router.post("/", protect, create);
 
-router.use(requestContextMiddleware);
+router.get("/", protect, getOrgs);
 
-router.post("/", create);
+router.post("/:orgId/invite", protect, isOwnerOrAdmin, inviteUser);
 
-router.get("/", getOrgs);
-
-router.get("/invitations", getMyInvitations);
-
-router.post("/:orgId/invite", isOwner, inviteUser);
-
-router.patch("/invitations/:membershipId", respondToInvitation);
+router.post("/accept-invite/:token", acceptInvite);
 
 router.use("/:orgId/project", projectRouter);
 

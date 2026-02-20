@@ -7,11 +7,12 @@ import {
   UserOrganization
 } from "../entities/UserOrganization";
 import { AppError } from "../utils/AppError";
+import { In } from "typeorm";
 
-export const isOwner = catchAsync(
+export const isOwnerOrAdmin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { orgId } = req.params;
-    const userId = req.body.userId;
+    const userId = req.user.id;
 
     const membership = await AppDataSource.getRepository(
       UserOrganization
@@ -19,7 +20,7 @@ export const isOwner = catchAsync(
       where: {
         organization: { id: orgId as string },
         user: { id: userId },
-        role: OrganizationRole.OWNER
+        role: In([OrganizationRole.OWNER, OrganizationRole.ADMIN])
       }
     });
 

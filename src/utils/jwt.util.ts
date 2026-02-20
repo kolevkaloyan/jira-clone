@@ -2,14 +2,22 @@ import jwt from "jsonwebtoken";
 import { requireEnv } from "./requireEnv";
 import { redis } from "../redis/redis-client";
 import { AppError } from "./AppError";
+import { randomBytes } from "crypto";
 
 export interface TokenPayload {
   userId: string;
 }
 
+export interface InviteTokenPayload {
+  orgId: string;
+  email: string;
+}
+
 const ACCESS_TOKEN_SECRET = requireEnv("JWT_SECRET");
 const REFRESH_TOKEN_SECRET = requireEnv("REFRESH_TOKEN_SECRET");
 const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
+const INVITE_TOKEN_SECRET = requireEnv("INVITE_TOKEN_SECRET");
+const INVITE_TOKEN_TTL_SECONDS = 60 * 60 * 24;
 
 export const generateTokens = (userId: string) => {
   const accessToken = jwt.sign({ userId }, ACCESS_TOKEN_SECRET, {
@@ -77,5 +85,40 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
       throw new AppError("Refresh token expired", 401);
     }
     throw new AppError("Invalid token", 401);
+  }
+};
+
+export const generateTempPassword = (): string => {
+  return randomBytes(8).toString("hex");
+};
+
+export const generateInviteToken = (orgId: string, email: string): string => {
+  return jwt.sign({ orgId, email }, INVITE_TOKEN_SECRET, { expiresIn: "1d" });
+};
+
+export const verifyInviteToken = (token: string): InviteTokenPayload => {
+  try {
+    return jwt.verify(token, INVITE_TOKEN_SECRET) as InviteTokenPayload;
+  } catch (err: any) {
+    if (err.name === "TokenExpiredError") {
+      throw new AppError("Invite token has expired", 401);
+    }
+    throw new AppError("Invalid invite token", 401);
+  }
+};
+
+export const storeInviteToken = async (token: string) => {
+  await redis.set(
+    `inviteToken:${token}`,
+    "valid",
+    "EX",
+    INVITE_TOKEN_TTL_SECONDS
+  );
+};
+
+export const consumeInviteToken = async (token: string) => {
+  const result = await redis.del(`inviteToken:${token}`);
+  if (result === 0) {
+    throw new AppError("Invite token already used or invalid", 401);
   }
 };

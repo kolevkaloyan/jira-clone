@@ -1,6 +1,7 @@
 import { AppDataSource } from "../data-source";
 import { User } from "../entities/User";
 import { AppError } from "../utils/AppError";
+import bcrypt from "bcrypt";
 
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
@@ -20,8 +21,15 @@ export class UserService {
   async updateProfile(userId: string, data: Partial<User>) {
     const user = await this.getProfile(userId);
 
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, 12);
+    }
+
     Object.assign(user, data);
 
-    return await this.userRepository.save(user);
+    await this.userRepository.save(user);
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }

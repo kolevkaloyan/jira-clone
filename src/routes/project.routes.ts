@@ -7,20 +7,23 @@ import {
   deleteProject
 } from "../controllers/project.controller";
 import { protect } from "../middleware/auth.middleware";
-import { isMember, isOwner } from "../middleware/role.middleware";
+import { isMember, isOwnerOrAdmin } from "../middleware/role.middleware";
 import taskRoutes from "./task.routes";
 
 const router = Router({ mergeParams: true });
 
 router.use(protect);
 
-router.route("/").get(isMember, getProjects).post(isOwner, createProject);
+router
+  .route("/")
+  .get(isMember, getProjects)
+  .post(isOwnerOrAdmin, createProject);
 
 router
   .route("/:projectId")
   .get(isMember, getProject)
-  .patch(isOwner, updateProject)
-  .delete(isOwner, deleteProject);
+  .patch(isOwnerOrAdmin, updateProject)
+  .delete(isOwnerOrAdmin, deleteProject);
 
 router.use("/:projectId/task", taskRoutes);
 

@@ -1,12 +1,22 @@
 import { AppDataSource } from "../data-source";
 import { Organization } from "../entities/Organization";
-import { User, UserRole } from "../entities/User";
+import { User } from "../entities/User";
 import {
   EnrollmentStatus,
   OrganizationRole,
   UserOrganization
 } from "../entities/UserOrganization";
 import { AppError } from "../utils/AppError";
+import {
+  consumeInviteToken,
+  generateInviteToken,
+  generateTempPassword,
+  generateTokens,
+  storeInviteToken,
+  storeRefreshToken,
+  verifyInviteToken
+} from "../utils/jwt.util";
+import bcrypt from "bcrypt";
 
 export class OrganizationService {
   private userOrgRepo = AppDataSource.getRepository(UserOrganization);
@@ -33,6 +43,7 @@ export class OrganizationService {
 
         const membership = transactionalEntityManager.create(UserOrganization, {
           role: OrganizationRole.OWNER,
+          status: EnrollmentStatus.ACCEPTED,
           user: { id: userId } as User,
           organization: savedOrg
         });
@@ -54,64 +65,75 @@ export class OrganizationService {
   }
 
   async inviteUser(orgId: string, email: string) {
-    const userToInvite = await this.userRepo.findOne({
-      where: { email: email }
-    });
+    let user = await this.userRepo.findOne({ where: { email } });
 
-    if (!userToInvite)
-      throw new AppError("No user found with that email!", 404);
-    //check if already in organization
-    const existingUser = await this.userOrgRepo.findOne({
-      where: { organization: { id: orgId }, user: { id: userToInvite.id } }
-    });
-
-    if (existingUser)
-      throw new AppError(
-        "User is already a member or has a pending invite!",
-        400
-      );
-
-    const invitation = this.userOrgRepo.create({
-      organization: { id: orgId } as any,
-      user: { id: userToInvite.id } as any,
-      role: OrganizationRole.MEMBER,
-      status: EnrollmentStatus.PENDING
-    });
-
-    return this.userOrgRepo.save(invitation);
-  }
-
-  async getPendingInvites(userId: string) {
-    const pendingInvites = await this.userOrgRepo.find({
-      where: { user: { id: userId }, status: EnrollmentStatus.PENDING },
-      relations: ["organization"]
-    });
-    return pendingInvites;
-  }
-
-  async respondToInvitation(
-    membershipId: string,
-    userId: string,
-    accept: boolean
-  ) {
-    const membership = await this.userOrgRepo.findOne({
-      where: {
-        user: { id: userId },
-        id: membershipId,
-        status: EnrollmentStatus.PENDING
+    if (user) {
+      const existingMembership = await this.userOrgRepo.findOne({
+        where: { organization: { id: orgId }, user: { id: user.id } }
+      });
+      if (existingMembership) {
+        throw new AppError(
+          "User is already a member or has a pending invite!",
+          400
+        );
       }
+    } else {
+      const tempPassword = generateTempPassword();
+      const hashedPassword = await bcrypt.hash(tempPassword, 12);
+
+      user = this.userRepo.create({
+        email,
+        password: hashedPassword,
+        fullName: email,
+        isActive: false
+      });
+
+      await this.userRepo.save(user);
+    }
+
+    const token = generateInviteToken(orgId, email);
+    await storeInviteToken(token);
+
+    return { inviteToken: token };
+  }
+
+  async acceptInvite(token: string) {
+    const { orgId, email } = verifyInviteToken(token);
+
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) throw new AppError("User not found", 404);
+
+    await consumeInviteToken(token);
+
+    if (!user.isActive) {
+      const tempPassword = generateTempPassword();
+      const hashedPassword = await bcrypt.hash(tempPassword, 12);
+
+      user.isActive = true;
+      user.password = hashedPassword;
+      await this.userRepo.save(user);
+    }
+
+    const existingMembership = await this.userOrgRepo.findOne({
+      where: { organization: { id: orgId }, user: { id: user.id } }
+    });
+    if (existingMembership) {
+      throw new AppError("You are already a member of this organization", 400);
+    }
+
+    const membership = this.userOrgRepo.create({
+      organization: { id: orgId } as any,
+      user: { id: user.id } as any,
+      role: OrganizationRole.MEMBER,
+      status: EnrollmentStatus.ACCEPTED
     });
 
-    if (!membership) {
-      throw new AppError("Invitation not found or already processed", 404);
-    }
+    await this.userOrgRepo.save(membership);
 
-    if (accept) {
-      membership.status = EnrollmentStatus.ACCEPTED;
-      return await this.userOrgRepo.save(membership);
-    } else {
-      this.userOrgRepo.remove(membership);
-      return { message: "Invitation rejected and removed" };
-    }
+    //imidiately log in the user after accepting
+    const { accessToken, refreshToken } = generateTokens(user.id);
+    await storeRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken, membership };
   }
 }

@@ -1,6 +1,7 @@
 import { OrganizationService } from "../services/organization.service";
 import { Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync";
+import { setRefreshTokenCookie } from "../utils/cookies";
 
 const orgService = new OrganizationService();
 
@@ -31,42 +32,29 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   const { orgId } = req.params;
   const { email } = req.body;
 
-  const invitation = await orgService.inviteUser(orgId as string, email);
+  const { inviteToken } = await orgService.inviteUser(orgId as string, email);
 
   res.status(200).json({
-    status: "Success",
-    message: "Invitation sent successfully!"
+    status: "success",
+    message: "Invitation sent successfully!",
+    data: { inviteToken }
+    //In a production app the invite will be sent via email but for API testing purposes I'm doing it here.
   });
 });
 
-export const getMyInvitations = catchAsync(
-  async (req: Request, res: Response) => {
-    const invitations = await orgService.getPendingInvites(req.user.id);
+export const acceptInvite = catchAsync(async (req: Request, res: Response) => {
+  const { token } = req.params;
 
-    console.log(invitations, "organizations/invitations");
+  const result = await orgService.acceptInvite(token as string);
 
-    res.status(200).json({
-      status: "success",
-      data: { invitations }
-    });
-  }
-);
+  setRefreshTokenCookie(res, result.refreshToken);
 
-export const respondToInvitation = catchAsync(
-  async (req: Request, res: Response) => {
-    const { membershipId } = req.params;
-    const { accept } = req.body;
-    const userId = req.user.id;
-
-    const result = await orgService.respondToInvitation(
-      membershipId as string,
-      userId,
-      accept
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: result
-    });
-  }
-);
+  res.status(200).json({
+    status: "success",
+    message: "Account activated and joined organization successfully",
+    data: {
+      accessToken: result.accessToken,
+      membership: result.membership
+    }
+  });
+});

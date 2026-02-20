@@ -26,7 +26,7 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
-  @Column({ select: false }) // Hide password by default in queries
+  @Column({ select: false })
   password!: string;
 
   @OneToMany(() => UserOrganization, (userOrg) => userOrg.user)
@@ -41,6 +41,9 @@ export class User {
     default: UserRole.MEMBER
   })
   role!: UserRole;
+
+  @Column({ default: false })
+  isActive!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;
