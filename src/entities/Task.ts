@@ -47,10 +47,6 @@ export class Task {
   })
   status!: TaskStatus;
 
-  // can be used for drag and drop
-  @Column({ type: "float", default: 0 })
-  order!: number;
-
   @CreateDateColumn()
   createdAt!: Date;
 

@@ -1,3 +1,4 @@
+import { EntityManager } from "typeorm";
 import { AppDataSource } from "../data-source";
 import { CreateTaskDto, UpdateTaskDto } from "../dtos/task.dto";
 import { Project } from "../entities/Project";
@@ -7,8 +8,15 @@ import { AppError } from "../utils/AppError";
 export class TaskService {
   private taskRepo = AppDataSource.getRepository(Task);
 
-  async createTask(orgId: string, projectId: string, data: CreateTaskDto) {
-    return await AppDataSource.transaction(async (manager) => {
+  async createTask(
+    orgId: string,
+    projectId: string,
+    data: CreateTaskDto,
+    transaction?: EntityManager
+  ) {
+    const manager = transaction ?? AppDataSource.manager;
+
+    const runCreate = async (manager: EntityManager) => {
       const project = await manager.findOne(Project, {
         where: { id: projectId, organization: { id: orgId } },
         //lock the row for update to prevent race conditions
@@ -29,7 +37,13 @@ export class TaskService {
       });
 
       return await manager.save(task);
-    });
+    };
+
+    if (transaction) {
+      return runCreate(transaction);
+    }
+
+    return AppDataSource.transaction(runCreate);
   }
 
   async getTaskById(projectId: string, taskId: string) {
@@ -61,7 +75,7 @@ export class TaskService {
   async listTasks(projectId: string, status?: TaskStatus) {
     return await this.taskRepo.find({
       where: { project: { id: projectId }, status },
-      order: { order: "ASC", createdAt: "DESC" },
+      order: { createdAt: "DESC" },
       relations: ["tags"]
     });
   }
