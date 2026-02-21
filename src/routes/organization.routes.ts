@@ -10,18 +10,6 @@ import { isMember, isOwnerOrAdmin } from "../middleware/role.middleware";
 import projectRouter from "./project.routes";
 import { getOrgTags, createTag } from "../controllers/tag.controller";
 
-console.log({
-  protect,
-  create,
-  getOrgs,
-  inviteUser,
-  acceptInvite,
-  isOwnerOrAdmin,
-  isMember,
-  getOrgTags,
-  createTag,
-  projectRouter
-});
 const router = Router();
 
 router.post("/", protect, create);
