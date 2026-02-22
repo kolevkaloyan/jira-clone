@@ -64,7 +64,12 @@ export class OrganizationService {
     return memberships.map((membership) => membership.organization);
   }
 
-  async inviteUser(orgId: string, email: string) {
+  async inviteUser(orgId: string, email: string, inviterId: string) {
+    const inviter = await this.userRepo.findOne({ where: { id: inviterId } });
+    if (inviter?.email === email) {
+      throw new AppError("You cannot invite yourself", 400);
+    }
+
     let user = await this.userRepo.findOne({ where: { email } });
 
     if (user) {
@@ -103,22 +108,22 @@ export class OrganizationService {
     const user = await this.userRepo.findOne({ where: { email } });
     if (!user) throw new AppError("User not found", 404);
 
+    const existingMembership = await this.userOrgRepo.findOne({
+      where: { organization: { id: orgId }, user: { id: user.id } }
+    });
+
+    if (existingMembership) {
+      throw new AppError("You are already a member of this organization", 400);
+    }
+
     await consumeInviteToken(token);
 
     if (!user.isActive) {
       const tempPassword = generateTempPassword();
       const hashedPassword = await bcrypt.hash(tempPassword, 12);
-
       user.isActive = true;
       user.password = hashedPassword;
       await this.userRepo.save(user);
-    }
-
-    const existingMembership = await this.userOrgRepo.findOne({
-      where: { organization: { id: orgId }, user: { id: user.id } }
-    });
-    if (existingMembership) {
-      throw new AppError("You are already a member of this organization", 400);
     }
 
     const membership = this.userOrgRepo.create({
@@ -130,7 +135,6 @@ export class OrganizationService {
 
     await this.userOrgRepo.save(membership);
 
-    //imidiately log in the user after accepting
     const { accessToken, refreshToken } = generateTokens(user.id);
     await storeRefreshToken(user.id, refreshToken);
 

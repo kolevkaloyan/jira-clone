@@ -32,7 +32,11 @@ export const inviteUser = catchAsync(async (req: Request, res: Response) => {
   const { orgId } = req.params;
   const { email } = req.body;
 
-  const { inviteToken } = await orgService.inviteUser(orgId as string, email);
+  const { inviteToken } = await orgService.inviteUser(
+    orgId as string,
+    email,
+    req.user.id
+  );
 
   res.status(200).json({
     status: "success",
