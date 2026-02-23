@@ -52,7 +52,35 @@ const seed = async () => {
     isActive: false
   });
 
-  await userRepo.save([owner, member, pending]);
+  const provisional1 = userRepo.create({
+    email: "ghost1@example.com",
+    password: hashedPassword,
+    fullName: "ghost1@example.com",
+    isActive: false
+  });
+
+  const provisional2 = userRepo.create({
+    email: "ghost2@example.com",
+    password: hashedPassword,
+    fullName: "ghost2@example.com",
+    isActive: false
+  });
+
+  const provisional3 = userRepo.create({
+    email: "ghost3@example.com",
+    password: hashedPassword,
+    fullName: "ghost3@example.com",
+    isActive: false
+  });
+
+  await userRepo.save([
+    owner,
+    member,
+    pending,
+    provisional1,
+    provisional2,
+    provisional3
+  ]);
   console.log("👤 Seeded users");
 
   // ─── Organization ─────────────────────────────────────────

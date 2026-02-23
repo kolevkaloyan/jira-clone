@@ -107,10 +107,10 @@ export const verifyInviteToken = (token: string): InviteTokenPayload => {
   }
 };
 
-export const storeInviteToken = async (token: string) => {
+export const storeInviteToken = async (token: string, email: string) => {
   await redis.set(
     `inviteToken:${token}`,
-    "valid",
+    email,
     "EX",
     INVITE_TOKEN_TTL_SECONDS
   );

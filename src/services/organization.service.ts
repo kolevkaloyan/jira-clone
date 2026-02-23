@@ -137,7 +137,7 @@ export class OrganizationService {
     }
 
     const token = generateInviteToken(orgId, email);
-    await storeInviteToken(token);
+    await storeInviteToken(token, email);
 
     return { inviteToken: token };
   }

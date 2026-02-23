@@ -33,7 +33,7 @@ export class UserOrganization {
   })
   status!: EnrollmentStatus;
 
-  @ManyToOne(() => User, (user) => user.memberships)
+  @ManyToOne(() => User, (user) => user.memberships, { onDelete: "CASCADE" })
   user!: User;
 
   @ManyToOne(() => Organization, (org) => org.memberships)

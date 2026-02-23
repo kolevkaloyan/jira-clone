@@ -14,7 +14,8 @@
     "db:revert": "npm run typeorm migration:revert -- -d src/data-source.ts",
     "swagger": "ts-node swagger.ts",
     "swagger:dev": "npm run swagger && nodemon src/server.ts",
-    "seed": "ts-node seed.ts"
+    "seed": "ts-node seed.ts",
+    "worker": "npx ts-node src/jobs/trigger.ts"
   },
   "keywords": [],
   "author": "",
