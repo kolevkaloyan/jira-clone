@@ -9,9 +9,8 @@ export const CreateTaskSchema = z.object({
 });
 
 export const UpdateTaskSchema = z.object({
-  title: z.string().min(1).max(255).optional(),
+  title: z.string().min(1).optional(),
   description: z.string().optional(),
-  status: z.enum(TaskStatus).optional(),
   assigneeId: z.uuid().optional(),
   order: z.number().optional()
 });
@@ -19,7 +18,7 @@ export const UpdateTaskSchema = z.object({
 export const TaskParamsSchema = z.object({
   orgId: z.string().uuid(),
   projectId: z.string().uuid(),
-  taskId: z.string().uuid().optional()
+  taskId: z.uuid().optional()
 });
 
 export type CreateTaskDto = z.infer<typeof CreateTaskSchema>;

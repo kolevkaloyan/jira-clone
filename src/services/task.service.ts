@@ -5,6 +5,13 @@ import { Project } from "../entities/Project";
 import { Task, TaskStatus } from "../entities/Task";
 import { AppError } from "../utils/AppError";
 
+const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  [TaskStatus.TODO]: [TaskStatus.IN_PROGRESS],
+  [TaskStatus.IN_PROGRESS]: [TaskStatus.REVIEW, TaskStatus.TODO],
+  [TaskStatus.REVIEW]: [TaskStatus.DONE, TaskStatus.IN_PROGRESS],
+  [TaskStatus.DONE]: [TaskStatus.TODO] // reopen
+};
+
 export class TaskService {
   private taskRepo = AppDataSource.getRepository(Task);
 
@@ -69,6 +76,30 @@ export class TaskService {
     Object.assign(task, data);
     if (data.assigneeId) task.assignee = { id: data.assigneeId } as any;
 
+    return await this.taskRepo.save(task);
+  }
+
+  async transitionStatus(
+    projectId: string,
+    taskId: string,
+    newStatus: TaskStatus
+  ) {
+    const task = await this.taskRepo.findOne({
+      where: { id: taskId, project: { id: projectId } }
+    });
+
+    if (!task) throw new AppError("Task not found", 404);
+
+    const allowed = VALID_TRANSITIONS[task.status];
+
+    if (!allowed.includes(newStatus)) {
+      throw new AppError(
+        `Invalid transition: cannot move from "${task.status}" to "${newStatus}"`,
+        400
+      );
+    }
+
+    task.status = newStatus;
     return await this.taskRepo.save(task);
   }
 

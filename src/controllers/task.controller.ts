@@ -7,6 +7,7 @@ import {
   UpdateTaskSchema
 } from "../dtos/task.dto";
 import { PaginationQuerySchema } from "../dtos/pagination.dto";
+import { AppError } from "../utils/AppError";
 
 const taskService = new TaskService();
 
@@ -57,6 +58,23 @@ export const updateTask = catchAsync(async (req: Request, res: Response) => {
     data: { task }
   });
 });
+
+export const transitionTask = catchAsync(
+  async (req: Request, res: Response) => {
+    const { projectId, taskId } = TaskParamsSchema.parse(req.params);
+    const { status } = req.body;
+
+    if (!status) throw new AppError("Status is required", 400);
+
+    const task = await taskService.transitionStatus(
+      projectId,
+      taskId as string,
+      status
+    );
+
+    res.status(200).json({ status: "success", data: { task } });
+  }
+);
 
 export const deleteTask = catchAsync(async (req: Request, res: Response) => {
   const { projectId, taskId } = TaskParamsSchema.parse(req.params);

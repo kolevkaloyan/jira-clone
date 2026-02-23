@@ -4,7 +4,8 @@ import {
   getTasks,
   updateTask,
   deleteTask,
-  getTask
+  getTask,
+  transitionTask
 } from "../controllers/task.controller";
 import { protect } from "../middleware/auth.middleware";
 import { isMember } from "../middleware/role.middleware";
@@ -23,6 +24,8 @@ router.use(isMember);
 router.route("/").get(getTasks).post(createTask);
 
 router.route("/:taskId").get(getTask).patch(updateTask).delete(deleteTask);
+
+router.patch("/:taskId/transition", isMember, transitionTask);
 
 router.use("/:taskId/comment", commentRouter);
 
