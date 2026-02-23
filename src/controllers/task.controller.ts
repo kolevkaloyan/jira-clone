@@ -6,6 +6,7 @@ import {
   TaskParamsSchema,
   UpdateTaskSchema
 } from "../dtos/task.dto";
+import { PaginationQuerySchema } from "../dtos/pagination.dto";
 
 const taskService = new TaskService();
 
@@ -23,14 +24,14 @@ export const createTask = catchAsync(async (req: Request, res: Response) => {
 
 export const getTasks = catchAsync(async (req: Request, res: Response) => {
   const { projectId } = TaskParamsSchema.parse(req.params);
+  const { page, limit } = PaginationQuerySchema.parse(req.query);
   const status = req.query.status as any;
 
-  const tasks = await taskService.listTasks(projectId, status);
+  const result = await taskService.listTasks(projectId, page, limit, status);
 
   res.status(200).json({
     status: "success",
-    results: tasks.length,
-    data: { tasks }
+    data: result
   });
 });
 

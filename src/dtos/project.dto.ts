@@ -24,11 +24,5 @@ export const ParamsSchema = z.object({
   projectId: z.uuid().optional()
 });
 
-export const PaginationQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(10)
-});
-
-export type PaginationQueryDto = z.infer<typeof PaginationQuerySchema>;
 export type UpdateProjectDto = z.infer<typeof UpdateProjectSchema>;
 export type CreateProjectDto = z.infer<typeof CreateProjectSchema>;

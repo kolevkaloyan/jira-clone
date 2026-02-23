@@ -3,10 +3,10 @@ import { ProjectService } from "../services/project.service";
 import { catchAsync } from "../utils/catchAsync";
 import {
   CreateProjectSchema,
-  PaginationQuerySchema,
   ParamsSchema,
   UpdateProjectSchema
 } from "../dtos/project.dto";
+import { PaginationQuerySchema } from "../dtos/pagination.dto";
 
 const projectService = new ProjectService();
 

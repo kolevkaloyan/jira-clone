@@ -2,6 +2,7 @@ import { OrganizationService } from "../services/organization.service";
 import { Request, Response } from "express";
 import { catchAsync } from "../utils/catchAsync";
 import { setRefreshTokenCookie } from "../utils/cookies";
+import { PaginationQuerySchema } from "../dtos/pagination.dto";
 
 const orgService = new OrganizationService();
 
@@ -25,6 +26,17 @@ export const getOrgs = catchAsync(async (req: Request, res: Response) => {
   res.status(200).json({
     status: "success",
     data: { organizations: userOrganizations }
+  });
+});
+
+export const getOrgMembers = catchAsync(async (req: Request, res: Response) => {
+  const { orgId } = req.params;
+  const { page, limit } = PaginationQuerySchema.parse(req.query);
+  const result = await orgService.getOrgMembers(orgId as string, page, limit);
+
+  return res.json({
+    status: "success",
+    data: result
   });
 });
 

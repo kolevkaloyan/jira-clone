@@ -64,6 +64,46 @@ export class OrganizationService {
     return memberships.map((membership) => membership.organization);
   }
 
+  async getOrgMembers(orgId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+
+    const [memberships, total] = await this.userOrgRepo.findAndCount({
+      where: {
+        organization: { id: orgId },
+        status: EnrollmentStatus.ACCEPTED
+      },
+      relations: ["user"],
+      select: {
+        id: true,
+        role: true,
+        status: true,
+        user: {
+          id: true,
+          email: true,
+          fullName: true
+        }
+      },
+      order: { role: "ASC" },
+      take: limit,
+      skip
+    });
+
+    return {
+      items: memberships.map((m) => ({
+        id: m.user.id,
+        email: m.user.email,
+        fullName: m.user.fullName,
+        role: m.role
+      })),
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
   async inviteUser(orgId: string, email: string, inviterId: string) {
     const inviter = await this.userRepo.findOne({ where: { id: inviterId } });
     if (inviter?.email === email) {

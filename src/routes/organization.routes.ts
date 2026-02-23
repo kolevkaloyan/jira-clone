@@ -3,6 +3,7 @@ import { protect } from "../middleware/auth.middleware";
 import {
   acceptInvite,
   create,
+  getOrgMembers,
   getOrgs,
   inviteUser
 } from "../controllers/organization.controller";
@@ -15,6 +16,8 @@ const router = Router();
 router.post("/", protect, create);
 
 router.get("/", protect, getOrgs);
+
+router.get("/:orgId/members", protect, isMember, getOrgMembers);
 
 router.post("/:orgId/invite", protect, isOwnerOrAdmin, inviteUser);
 

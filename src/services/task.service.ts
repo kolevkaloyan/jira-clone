@@ -72,12 +72,32 @@ export class TaskService {
     return await this.taskRepo.save(task);
   }
 
-  async listTasks(projectId: string, status?: TaskStatus) {
-    return await this.taskRepo.find({
-      where: { project: { id: projectId }, status },
+  async listTasks(
+    projectId: string,
+    page: number,
+    limit: number,
+    status?: TaskStatus
+  ) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await this.taskRepo.findAndCount({
+      where: {
+        project: { id: projectId },
+        ...(status && { status })
+      },
       order: { createdAt: "DESC" },
-      relations: ["tags"]
+      take: limit,
+      skip: skip
     });
+
+    return {
+      items,
+      pagination: {
+        total,
+        page,
+        limit,
+        tatalPages: Math.ceil(total / limit)
+      }
+    };
   }
 
   async deleteTask(projectId: string, taskId: string) {
