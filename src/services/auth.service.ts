@@ -51,6 +51,10 @@ export class AuthService {
       throw new AppError("Invalid credentials", 401);
     }
 
+    if (!user.isActive) {
+      throw new AppError("Your account is not yet activated", 403);
+    }
+
     const { accessToken, refreshToken } = generateTokens(user.id);
 
     await storeRefreshToken(user.id, refreshToken);
