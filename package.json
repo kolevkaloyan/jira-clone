@@ -13,7 +13,8 @@
     "db:push": "npm run typeorm migration:run -- -d src/data-source.ts",
     "db:revert": "npm run typeorm migration:revert -- -d src/data-source.ts",
     "swagger": "ts-node swagger.ts",
-    "swagger:dev": "npm run swagger && nodemon src/server.ts"
+    "swagger:dev": "npm run swagger && nodemon src/server.ts",
+    "seed": "ts-node seed.ts"
   },
   "keywords": [],
   "author": "",
