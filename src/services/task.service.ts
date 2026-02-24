@@ -126,7 +126,7 @@ export class TaskService {
         total,
         page,
         limit,
-        tatalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit)
       }
     };
   }
