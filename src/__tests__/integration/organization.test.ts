@@ -18,7 +18,6 @@ describe("Organization Endpoints", () => {
 
   beforeEach(async () => {
     owner = await createUser({ email: "owner@test.com" });
-    console.log(owner, "kur");
     org = await createOrg("Test Org");
     await createMembership(owner.id, org.id, OrganizationRole.OWNER);
     const auth = await loginAs("owner@test.com");
