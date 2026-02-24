@@ -37,7 +37,6 @@ A lightweight project and task management REST API inspired by Jira and Trello. 
 
 - Node.js 18+
 - Docker + Docker Compose
-- ***
 
 ### 1. Clone the repository
 
