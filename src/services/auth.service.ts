@@ -40,7 +40,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email: email },
-      select: ["id", "password", "email"]
+      select: ["id", "password", "email", "isActive"]
     });
 
     if (!user) throw new AppError("Invalid credentials", 401);
