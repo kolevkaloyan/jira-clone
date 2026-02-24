@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     image: postgres:15-alpine
-    container_name: projecthub_db
+    container_name: jira-clone_db
     restart: always
     environment:
       POSTGRES_USER: user
@@ -16,7 +16,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: projecthub_redis
+    container_name: jira-clone_redis
     restart: always
     ports:
       - "6379:6379"

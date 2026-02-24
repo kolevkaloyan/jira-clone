@@ -15,16 +15,24 @@ import {
 } from "./src/entities/UserOrganization";
 dotenv.config();
 
+const truncateOnly = process.argv.includes("--truncate-only");
+
 const seed = async () => {
   await AppDataSource.initialize();
   console.log("📦 Connected to database");
 
-  await AppDataSource.query(`TRUNCATE TABLE
-  comments, tasks_tags_tags, tasks, project,
-  user_organizations, organizations, users,
-  audit_logs
-  RESTART IDENTITY CASCADE`);
-  console.log("🧹 Cleared existing data");
+  if (truncateOnly) {
+    await AppDataSource.query(`
+      TRUNCATE TABLE
+        comments, tasks_tags_tags, tasks, project,
+        user_organizations, organizations, users,
+        audit_logs
+      RESTART IDENTITY CASCADE
+    `);
+    console.log("🧹 Cleared existing data");
+    await AppDataSource.destroy();
+    process.exit(0);
+  }
 
   // ─── Users ───────────────────────────────────────────────
   const userRepo = AppDataSource.getRepository(User);

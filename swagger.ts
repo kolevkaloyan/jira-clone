@@ -2,7 +2,7 @@ import swaggerAutogen from "swagger-autogen";
 
 const doc = {
   info: {
-    title: "ProjectHub API",
+    title: "Task Management API",
     description: "Lightweight Project & Task Management API",
     version: "1.0.0"
   },

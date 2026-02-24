@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   username: requireEnv("DB_USER"),
   password: requireEnv("DB_PASSWORD"),
   database: requireEnv("DB_NAME"),
-  synchronize: true, // Always false in production; use migrations instead!
+  synchronize: false,
   logging: true,
   entities: [__dirname + "/entities/*.ts"],
   migrations: [__dirname + "/migrations/*.ts"],
